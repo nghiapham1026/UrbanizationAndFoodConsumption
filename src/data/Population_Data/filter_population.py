@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the population dataset
-file_path = r"..\..\data\raw\Population_E_Asia\Population_E_Asia_NOFLAG.csv"
+file_path = r"..\..\..\data\raw\Population_E_Asia\Population_E_Asia_NOFLAG.csv"
 
 try:
     data = pd.read_csv(file_path, encoding='ISO-8859-1')
@@ -15,5 +15,5 @@ else:
     filtered_data = data[data['Area'].isin(south_asian_countries)]
 
     # Save the filtered data to a new CSV file
-    output_file_path = r"..\..\data\processed\Population_Data\Population_S_Asia_NOFLAG.csv"
+    output_file_path = r"..\..\..\data\processed\Population_Data\Population_S_Asia_NOFLAG.csv"
     filtered_data.to_csv(output_file_path, index=False)

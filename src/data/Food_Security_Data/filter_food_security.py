@@ -1,7 +1,7 @@
 import pandas as pd
 
 # Load the food security dataset
-new_file_path = r"..\..\data\raw\Food_Security_Data_E_Asia\Food_Security_Data_E_Asia_NOFLAG.csv"
+new_file_path = r"..\..\..\data\raw\Food_Security_Data_E_Asia\Food_Security_Data_E_Asia_NOFLAG.csv"
 
 try:
     new_data = pd.read_csv(new_file_path, encoding='ISO-8859-1')
@@ -15,5 +15,5 @@ else:
     filtered_new_data = new_data[new_data['Area'].isin(south_asian_countries)]
 
     # Save the filtered data to a new CSV file
-    output_new_file_path = r"..\..\data\processed\Food_Security_Data\Food_Security_Data_S_Asia_NOFLAG.csv"
+    output_new_file_path = r"..\..\..\data\processed\Food_Security_Data\Food_Security_Data_S_Asia_NOFLAG.csv"
     filtered_new_data.to_csv(output_new_file_path, index=False)
