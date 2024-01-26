@@ -1,6 +1,5 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import numpy as np
 
 # Load dataset
 data = pd.read_csv(r"..\..\..\data\processed\Food_Security_Data\Food_Security_S_Asia_NOFLAG.csv", encoding='ISO-8859-1')
