@@ -15,7 +15,10 @@ else:
     fields_to_include = ["Average dietary energy requirement (kcal/cap/day)", 
                          "Number of people undernourished (million) (3-year average)",
                          "Number of children under 5 years of age who are overweight (modeled estimates) (million)",
-                         "Number of obese adults (18 years and older) (million)"]
+                         "Number of obese adults (18 years and older) (million)",
+                         "Average protein supply (g/cap/day) (3-year average)",
+                         "Share of dietary energy supply derived from cereals, roots and tubers (kcal/cap/day) (3-year average)",
+                         "Average fat supply (g/cap/day) (3-year average)"]
 
     # Filter the data to include only the selected South Asian countries and specified fields
     filtered_new_data = new_data[new_data['Area'].isin(south_asian_countries) & 
