@@ -1,4 +1,5 @@
 import pandas as pd
+import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
 
@@ -38,7 +39,6 @@ for year in common_years:
     })
     merged_data_list.append(temp_df)
 
-# Concatenate all dataframes in the list
 merged_data = pd.concat(merged_data_list, ignore_index=True)
 
 # Drop rows with NaN values and duplicates
@@ -52,14 +52,20 @@ for country in merged_data['Area'].unique():
     # Perform linear regression for each country
     slope, intercept, r_value, p_value, std_err = linregress(country_data['Year'], country_data['AverageDietaryEnergy'])
 
-    # Calculate the trendline
-    trendline = intercept + (slope * country_data['Year'])
+    # Define the current and future time range
+    current_years = np.array(country_data['Year'])
+    future_years = np.arange(current_years.max() + 1, current_years.max() + 11)  # Predicting next 10 years
+
+    # Calculate the trendline for current and future years
+    trendline_current = intercept + (slope * current_years)
+    trendline_future = intercept + (slope * future_years)
 
     # Plotting the data and the trendline for each country
     plt.scatter(country_data['Year'], country_data['AverageDietaryEnergy'], label=f'{country} Data')
-    plt.plot(country_data['Year'], trendline, label=f'{country} Trend')
+    plt.plot(current_years, trendline_current, label=f'{country} Current Trend')
+    plt.plot(future_years, trendline_future, '--', label=f'{country} Future Trend')  # Dashed line for future
 
-plt.title('Trend of Average Dietary Energy Over Years by Country')
+plt.title('Trend and Prediction of Average Dietary Energy Over Years by Country')
 plt.xlabel('Year')
 plt.ylabel('Average Dietary Energy (kcal/cap/day)')
 plt.legend()

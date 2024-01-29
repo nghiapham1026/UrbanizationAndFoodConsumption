@@ -41,17 +41,24 @@ plt.figure(figsize=(15, 10))
 # Loop through each country and calculate trend
 for country in merged_data['Area'].unique():
     country_data = merged_data[merged_data['Area'] == country]
-    # Ensure there is enough data for each country
     if len(country_data) > 1:
         # Calculate trend for each country
         slope, intercept, r_value, p_value, std_err = linregress(country_data['Urban Population Percentage'], country_data['Undernourished Percentage'])
-        trendline = intercept + slope * country_data['Urban Population Percentage']
-        
+
+        # Define current and future urban population percentage range
+        current_urban_perc = np.array(country_data['Urban Population Percentage'])
+        future_urban_perc = np.linspace(current_urban_perc.max(), current_urban_perc.max() + 5, 5)  # Extend 5% more
+
+        # Calculate trendline for current and future range
+        trendline_current = intercept + slope * current_urban_perc
+        trendline_future = intercept + slope * future_urban_perc
+
         # Plotting each country's data and trend line
         plt.scatter(country_data['Urban Population Percentage'], country_data['Undernourished Percentage'], label=f'{country} Data')
-        plt.plot(country_data['Urban Population Percentage'], trendline, label=f'{country} Trend')
+        plt.plot(current_urban_perc, trendline_current, label=f'{country} Current Trend')
+        plt.plot(future_urban_perc, trendline_future, '--', label=f'{country} Future Trend')
 
-plt.title('Trend in Urban Population Percentage vs Undernourished Percentage by Country')
+plt.title('Current and Future Trend in Urban Population Percentage vs Undernourished Percentage by Country')
 plt.xlabel('Urban Population Percentage')
 plt.ylabel('Undernourished Percentage')
 plt.legend()

@@ -38,17 +38,24 @@ plt.figure(figsize=(15, 10))
 # Loop through each country and calculate trend
 for country in merged_data['Area'].unique():
     country_data = merged_data[merged_data['Area'] == country]
-    # Ensure there is enough data for each country
     if len(country_data) > 1:
         # Calculate trend for each country
         slope, intercept, r_value, p_value, std_err = linregress(country_data['Urban Population Percentage'], country_data['Carbohydrate Intake'])
-        trendline = intercept + slope * country_data['Urban Population Percentage']
-        
+
+        # Define the current and future urban population percentage
+        current_urban_percentage = np.array(country_data['Urban Population Percentage'])
+        future_urban_percentage = np.linspace(current_urban_percentage.max(), current_urban_percentage.max() + 5, 5)  # Assume a 5% increase for illustration
+
+        # Calculate the trendline for current and future
+        trendline_current = intercept + slope * current_urban_percentage
+        trendline_future = intercept + slope * future_urban_percentage
+
         # Plotting each country's data and trend line
         plt.scatter(country_data['Urban Population Percentage'], country_data['Carbohydrate Intake'], label=f'{country} Data')
-        plt.plot(country_data['Urban Population Percentage'], trendline, label=f'{country} Trend')
+        plt.plot(current_urban_percentage, trendline_current, label=f'{country} Current Trend')
+        plt.plot(future_urban_percentage, trendline_future, '--', label=f'{country} Future Trend')
 
-plt.title('Trend in Urban Population Percentage vs Carbohydrate Intake by Country')
+plt.title('Trend and Prediction of Urban Population Percentage vs Carbohydrate Intake by Country')
 plt.xlabel('Urban Population Percentage')
 plt.ylabel('Carbohydrate Intake (kcal/cap/day)')
 plt.legend()
