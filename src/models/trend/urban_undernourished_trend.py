@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import linregress
+import seaborn as sns
 
 # Load the datasets
 population_data_path = r"..\..\..\data\processed\Population_Data\Total_Urban_Populations_3_year.csv"
@@ -38,6 +39,10 @@ merged_data.dropna(subset=['Urban Population Percentage', 'Undernourished Percen
 
 plt.figure(figsize=(15, 10))
 
+# Generate a color palette, one color per country
+palette = sns.color_palette("hsv", len(merged_data['Area'].unique()))
+color_map = dict(zip(merged_data['Area'].unique(), palette))
+
 # Loop through each country and calculate trend
 for country in merged_data['Area'].unique():
     country_data = merged_data[merged_data['Area'] == country]
@@ -52,11 +57,12 @@ for country in merged_data['Area'].unique():
         # Calculate trendline for current and future range
         trendline_current = intercept + slope * current_urban_perc
         trendline_future = intercept + slope * future_urban_perc
+        country_color = color_map[country]  # Use the unique color for the country
 
         # Plotting each country's data and trend line
-        plt.scatter(country_data['Urban Population Percentage'], country_data['Undernourished Percentage'], label=f'{country} Data')
-        plt.plot(current_urban_perc, trendline_current, label=f'{country} Current Trend')
-        plt.plot(future_urban_perc, trendline_future, '--', label=f'{country} Future Trend')
+        plt.scatter(country_data['Urban Population Percentage'], country_data['Undernourished Percentage'], color=country_color, label=f'{country} Data')
+        plt.plot(current_urban_perc, trendline_current, color=country_color, label=f'{country} Current Trend')
+        plt.plot(future_urban_perc, trendline_future, '--', color=country_color, label=f'{country} Future Trend')
 
 plt.title('Current and Future Trend in Urban Population Percentage vs Undernourished Percentage by Country')
 plt.xlabel('Urban Population Percentage')

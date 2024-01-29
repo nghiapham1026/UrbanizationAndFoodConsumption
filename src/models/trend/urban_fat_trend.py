@@ -2,6 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import linregress
+import seaborn as sns
 
 # Load the datasets
 population_data_path = r"..\..\..\data\processed\Population_Data\Total_Urban_Populations_3_year.csv"
@@ -35,25 +36,26 @@ merged_data.dropna(subset=['Urban Population Percentage', 'Fat Intake'], inplace
 
 plt.figure(figsize=(15, 10))
 
+# Generate a color palette, one color per country
+palette = sns.color_palette("hsv", len(merged_data['Area'].unique()))
+color_map = dict(zip(merged_data['Area'].unique(), palette))
+
 # Loop through each country and calculate trend
 for country in merged_data['Area'].unique():
     country_data = merged_data[merged_data['Area'] == country]
     if len(country_data) > 1:
         # Calculate trend for each country
         slope, intercept, r_value, p_value, std_err = linregress(country_data['Urban Population Percentage'], country_data['Fat Intake'])
-
-        # Define the current and future urban population percentage
         current_urban_percentage = np.array(country_data['Urban Population Percentage'])
-        future_urban_percentage = np.linspace(current_urban_percentage.max(), current_urban_percentage.max() + 5, 5)  # Assume a 5% increase for illustration
-
-        # Calculate the trendline for current and future
+        future_urban_percentage = np.linspace(current_urban_percentage.max(), current_urban_percentage.max() + 5, 5)
         trendline_current = intercept + slope * current_urban_percentage
         trendline_future = intercept + slope * future_urban_percentage
+        country_color = color_map[country]
 
         # Plotting each country's data and trend line
-        plt.scatter(country_data['Urban Population Percentage'], country_data['Fat Intake'], label=f'{country} Data')
-        plt.plot(current_urban_percentage, trendline_current, label=f'{country} Current Trend')
-        plt.plot(future_urban_percentage, trendline_future, '--', label=f'{country} Future Trend')
+        plt.scatter(country_data['Urban Population Percentage'], country_data['Fat Intake'], color=country_color, label=f'{country} Data')
+        plt.plot(current_urban_percentage, trendline_current, color=country_color, label=f'{country} Current Trend')
+        plt.plot(future_urban_percentage, trendline_future, '--', color=country_color, label=f'{country} Future Trend')
 
 plt.title('Trend and Prediction of Urban Population Percentage vs Fat Intake by Country')
 plt.xlabel('Urban Population Percentage')

@@ -2,6 +2,7 @@ import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
 from scipy.stats import linregress
+import seaborn as sns
 
 # Load datasets
 dietary_path = r"..\..\..\data\processed\Food_Security_Data\Food_Security_S_Asia_NOFLAG.csv"
@@ -41,29 +42,32 @@ for year in common_years:
 
 merged_data = pd.concat(merged_data_list, ignore_index=True)
 
-# Drop rows with NaN values and duplicates
 merged_data.dropna(inplace=True)
 merged_data.drop_duplicates(inplace=True)
 
 plt.figure(figsize=(15, 10))
+
+# Generate a color palette, one color per country
+palette = sns.color_palette("hsv", len(merged_data['Area'].unique()))
+color_map = dict(zip(merged_data['Area'].unique(), palette))
+
+# Loop through each country and perform regression
 for country in merged_data['Area'].unique():
     country_data = merged_data[merged_data['Area'] == country]
 
-    # Perform linear regression for each country
     slope, intercept, r_value, p_value, std_err = linregress(country_data['Year'], country_data['AverageDietaryEnergy'])
 
-    # Define the current and future time range
     current_years = np.array(country_data['Year'])
     future_years = np.arange(current_years.max() + 1, current_years.max() + 11)  # Predicting next 10 years
 
-    # Calculate the trendline for current and future years
     trendline_current = intercept + (slope * current_years)
     trendline_future = intercept + (slope * future_years)
+    country_color = color_map[country]  # Use the unique color for the country
 
     # Plotting the data and the trendline for each country
-    plt.scatter(country_data['Year'], country_data['AverageDietaryEnergy'], label=f'{country} Data')
-    plt.plot(current_years, trendline_current, label=f'{country} Current Trend')
-    plt.plot(future_years, trendline_future, '--', label=f'{country} Future Trend')  # Dashed line for future
+    plt.scatter(country_data['Year'], country_data['AverageDietaryEnergy'], color=country_color, label=f'{country} Data')
+    plt.plot(current_years, trendline_current, color=country_color, label=f'{country} Current Trend')
+    plt.plot(future_years, trendline_future, '--', color=country_color, label=f'{country} Future Trend')
 
 plt.title('Trend and Prediction of Average Dietary Energy Over Years by Country')
 plt.xlabel('Year')
