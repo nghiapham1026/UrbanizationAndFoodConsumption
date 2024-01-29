@@ -11,42 +11,35 @@ dietary_data_path = r"..\..\..\data\processed\Food_Security_Data\Food_Security_S
 population_data = pd.read_csv(population_data_path, encoding='ISO-8859-1')
 dietary_data = pd.read_csv(dietary_data_path, encoding='ISO-8859-1')
 
-# Define a function to extract the 3-year interval columns
-def extract_3_year_intervals(df):
-    interval_columns = [col for col in df.columns if 'Y' in col and len(col) == 9]  # Adjusted to match the column format 'Yyyyyyyyy'
-    return df[interval_columns]
+# Extract relevant columns including 'Area'
+def extract_relevant_data(df, element, item):
+    interval_columns = [col for col in df.columns if 'Y' in col and len(col) == 9]
+    return df[df['Element'] == element][['Area'] + interval_columns] if element else df[df['Item'] == item][['Area'] + interval_columns]
 
-# Extract the 3-year interval data for urban population and fat intake
-urban_population = extract_3_year_intervals(population_data[population_data['Element'] == 'Urban population'])
-fat_intake = extract_3_year_intervals(dietary_data[dietary_data['Item'] == 'Average fat supply (g/cap/day) (3-year average)'])
+# Extract data for urban population, total population, and fat intake
+urban_population = extract_relevant_data(population_data, 'Urban population', None)
+total_population = extract_relevant_data(population_data, 'Total Population - Both sexes', None)
+fat_intake = extract_relevant_data(dietary_data, None, 'Average fat supply (g/cap/day) (3-year average)')
 
-# Ensure both datasets have the same intervals
-common_intervals = urban_population.columns.intersection(fat_intake.columns)
-urban_population = urban_population[common_intervals].mean(axis=0)
-fat_intake = fat_intake[common_intervals].mean(axis=0)
+# Reshape the data for merging
+urban_population_melted = urban_population.melt(id_vars='Area', var_name='Year', value_name='Urban Population')
+total_population_melted = total_population.melt(id_vars='Area', var_name='Year', value_name='Total Population')
+fat_intake_melted = fat_intake.melt(id_vars='Area', var_name='Year', value_name='Fat Intake')
 
-# Drop NaN values from both series to ensure equal length
-urban_population = urban_population.dropna()
-fat_intake = fat_intake.dropna()
+# Merge the datasets
+merged_data = pd.merge(pd.merge(urban_population_melted, total_population_melted, on=['Area', 'Year']), fat_intake_melted, on=['Area', 'Year'])
 
-# Ensure the indexes are aligned after dropping NaNs
-common_indexes = urban_population.index.intersection(fat_intake.index)
-urban_population = urban_population[common_indexes]
-fat_intake = fat_intake[common_indexes]
+# Calculate Urban Population Percentage
+merged_data['Urban Population Percentage'] = (merged_data['Urban Population'] / merged_data['Total Population']) * 100
 
-# Create a DataFrame for plotting
-plot_data = pd.DataFrame({
-    'Urban Population': urban_population,
-    'Fat Intake': fat_intake
-})
-
-# Calculate the Pearson correlation
-correlation, p_value = pearsonr(plot_data['Urban Population'], plot_data['Fat Intake'])
-print(f'Pearson correlation: {correlation}, P-value: {p_value}')
+# Drop NaN values
+merged_data.dropna(subset=['Urban Population Percentage', 'Fat Intake'], inplace=True)
 
 # Plotting
-sns.regplot(x='Urban Population', y='Fat Intake', data=plot_data)
-plt.title('Urban Population vs Fat Intake')
-plt.xlabel('Urban Population (in thousands)')
+plt.figure(figsize=(12, 8))
+sns.scatterplot(x='Urban Population Percentage', y='Fat Intake', hue='Area', data=merged_data)
+plt.title('Urban Population Percentage vs Fat Intake by Country')
+plt.xlabel('Urban Population Percentage')
 plt.ylabel('Fat Intake (kcal/cap/day)')
+plt.legend(title='Country', bbox_to_anchor=(1.05, 1), loc='upper left')
 plt.show()
