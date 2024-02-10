@@ -1,30 +1,34 @@
 import pandas as pd
 import matplotlib.pyplot as plt
 
-# Load the dataset
-file_path = r"..\..\..\data\processed\Population_Data\Total_Urban_Populations.csv"  # Replace with your dataset file path
-data = pd.read_csv(file_path, encoding='ISO-8859-1')
+# Load the datasets
+population_data_path = r"..\..\..\data\processed\Population_Data\Population_S_Asia_NOFLAG.csv"
 
-# Filter for 'Urban population'
-urban_population_data = data[data['Element'] == 'Urban population']
+population_data = urban_population_data = pd.read_csv(population_data_path, encoding='ISO-8859-1')
 
-# Convert year columns to numeric, replacing non-numeric values with NaN
-for col in urban_population_data.columns:
-    if col.startswith('Y'):
-        urban_population_data[col] = pd.to_numeric(urban_population_data[col], errors='coerce')
+# Extract data for total and urban populations
+total_population = population_data[population_data['Element'] == 'Total Population - Both sexes']
+urban_population = population_data[population_data['Element'] == 'Urban population']
 
-# Plot
+# Convert year columns to numeric and calculate the urban population percentage
+years = [col for col in total_population.columns if col.startswith('Y')]
+urban_percentages = pd.DataFrame(index=total_population['Area'])
+
+for year in years:
+    urban_population_year = urban_population.set_index('Area')[year]
+    total_population_year = total_population.set_index('Area')[year]
+    urban_percentages[year] = (urban_population_year / total_population_year) * 100
+
+# Plotting
 plt.figure(figsize=(15, 8))
-for country in urban_population_data['Area'].unique():
-    country_data = urban_population_data[urban_population_data['Area'] == country]
-    year_columns = country_data.columns[country_data.columns.str.startswith('Y')]
-    plt.plot(year_columns, country_data.iloc[0][year_columns], label=country)
+for country in urban_percentages.index:
+    plt.plot(years, urban_percentages.loc[country], label=country)
 
-plt.title('Urban Population Over the Years')
+plt.title('Urban Population Percentage Over the Years')
 plt.xlabel('Year')
-plt.ylabel('Urban Population (in thousands)')
+plt.ylabel('Urban Population Percentage')
 plt.xticks(rotation=45)
 plt.legend()
 plt.grid(True)
-plt.tight_layout()  # Adjusts the plot layout
+plt.tight_layout()
 plt.show()
