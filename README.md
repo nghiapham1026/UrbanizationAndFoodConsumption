@@ -1,4 +1,5 @@
 # Urbanization and Food Consumption Analysis
+### Refer to Urbanization_and_Food_Consumption.ipynb for comprehensive analysis of statistical findings
 
 ## Overview
 This project investigates the effects of urban population growth on dietary intake in South Asia using data from the Food and Agricultural Organization of the United Nations (FAO). By examining the relationship between urbanization and various dietary metrics, the project aims to shed light on how shifts towards urban living are influencing food consumption patterns, nutritional quality, and health outcomes in the region.
